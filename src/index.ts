@@ -7,7 +7,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 
 export const app = express();
-const port = 80;
+const port = 3000;
 const packageJson = require('../package.json');
 const swaggerSpec = require('./swagger.json');
 

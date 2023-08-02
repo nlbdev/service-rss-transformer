@@ -20,6 +20,6 @@ FROM node:14.19
 WORKDIR /usr/src/app
 COPY --from=build /usr/src/app .
 COPY src/swagger.json dist/swagger.json
-EXPOSE 443 80
-HEALTHCHECK --interval=30s --timeout=10s --start-period=1m CMD http_proxy="" https_proxy="" curl --fail http://${HOST-0.0.0.0}:${PORT:-443}/health || exit 1
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=1m CMD http_proxy="" https_proxy="" curl --fail http://${HOST-0.0.0.0}:${PORT:-3000}/health || exit 1
 CMD [ "npm", "run", "start" ]
