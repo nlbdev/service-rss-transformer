@@ -116,23 +116,57 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
                     <p>Det kan også forekomme andre feil i lydversjonen, enten som et resultat av den automatiske produksjonen, eller på grunn av svakheter i det datamaterialet som danner grunnlaget for NLBs produksjon. Vi beklager dette, og jobber kontinuerlig med å forbedre produktet.</p>
                     <p>Kontakt oss, fortrinnsvis på NLB-utlaan@nb.no, dersom du har spørsmål om lydavisen.</p></level1>`);
 
+                    let articles: {identifier: string, title: string, description: string, content: string, originalContent: string}[] = [];
+
                     // Add the articles to the bodymatter
                     input('item').each((i, elem) => {
                         const article = cheerio.load(elem, { xmlMode: true });
                         const articleTitle = article('title').text();
                         const articleDescription = article('description').text();
-                        const articleContent = article('content\\:encoded').text();
+                        const articleContent = (article('content\\:encoded') !== undefined ? article('content\\:encoded').text() : '');
 
-                        // Remove all but paragraphs, lists and headings
-                        const articleContentWithoutAnchors = articleContent.replace(/<a\b[^>]*>(.*?)<\/a>/g, '');
-                        const articleContentWithoutImages = articleContentWithoutAnchors.replace(/<img\b[^>]*>/g, '');
-                        const articleContentWithoutTables = articleContentWithoutImages.replace(/<table\b[^>]*>(.*?)<\/table>/g, '');
-                        const articleContentWithoutStyles = articleContentWithoutTables.replace(/style="[^"]*"/g, '');
-                        const articleContentWithoutClasses = articleContentWithoutStyles.replace(/class="[^"]*"/g, '');
-                        const articleContentWithoutIds = articleContentWithoutClasses.replace(/id="[^"]*"/g, '');
-                        const articleContentWithoutAttributes = articleContentWithoutIds.replace(/<[^>]*>/g, '');
+                        // Remove tables
+                        let cleanedContent = articleContent.replace(/<table\b[^>]*>(.*?)<\/table>/g, '');
+                        // Remove iframes
+                        cleanedContent = cleanedContent.replace(/<iframe\b[^>]*>(.*?)<\/iframe>/g, '');
+                        // Remove empty headings
+                        cleanedContent = cleanedContent.replace(/<h[1-6]\b[^>]*>(.*?)<\/h[1-6]>/g, (match, p1) => {
+                            if (p1.trim() === '') {
+                                return '';
+                            } else {
+                                return match;
+                            }
+                        });
+                        // Remove links (anchors)
+                        cleanedContent = cleanedContent.replace(/<a\b[^>]*>(.*?)<\/a>/g, '$1');
 
-                        output('bodymatter').append(`<level1><h1>${articleTitle}</h1>${articleDescription ? '<p>'+articleDescription+'</p>' : ''}<p>${articleContentWithoutAttributes}</p></level1>`);
+
+
+                        // Remove paragraphs with a line break inside them
+                        cleanedContent = cleanedContent.replace(/<p\b[^>]*>(.*?)<br\b[^>]*>(.*?)<\/p>/g, '<p>$1$2</p>');
+                        // If paragraphs are nested inside paragraphs, remove the inner ones
+                        cleanedContent = cleanedContent.replace(/<p\b[^>]*>(.*?)<p\b[^>]*>(.*?)<\/p>(.*?)<\/p>/g, '<p>$1$2$3</p>');
+                        // Do this again to catch nested paragraphs inside nested paragraphs
+                        cleanedContent = cleanedContent.replace(/<p\b[^>]*>(.*?)<p\b[^>]*>(.*?)<\/p>(.*?)<\/p>/g, '<p>$1$2$3</p>');
+                        // Remove empty paragraphs
+                        cleanedContent = cleanedContent.replace(/<p\b[^>]*>(.*?)<\/p>/g, (match, p1) => {
+                            if (p1.trim() === '') {
+                                return '';
+                            } else {
+                                return match;
+                            }
+                        });
+
+                        // Generate a unique ID for the article
+                        const articleId = 'article-' + i;
+
+                        // Store it for use in table of contents
+                        articles.push({identifier: articleId, title: articleTitle, description: articleDescription, content: cleanedContent, originalContent: articleContent});
+                    });
+
+                    // Add the articles to the body
+                    articles.forEach((article) => {
+                        output('bodymatter').append(`<level1><h1>${article.title}</h1>${article.description ? '<p>'+article.description+'</p>' : ''}<p>${article.content}</p></level1>`);
                     });
 
                     // Add endmatter to the rearmatter
@@ -243,19 +277,10 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
                         const article = cheerio.load(elem, { xmlMode: true });
                         const articleTitle = article('title').text();
                         const articleDescription = article('description').text();
-                        const articleContent = article('content\\:encoded').text();
+                        const articleContent = (article('content\\:encoded') !== undefined ? article('content\\:encoded').text() : '');
 
-                        // Convert images to figures
-                        let cleanedContent = articleContent.replace(/<img\b[^>]*>/g, (match) => {
-                            const img = cheerio.load(match, { xmlMode: true });
-                            const imgSrc = img('img').attr('src');
-                            const imgAlt = img('img').attr('alt');
-                            const imgTitle = img('img').attr('title');
-                            const imgCaption = imgAlt || imgTitle || '';
-                            return `<figure><img src="${imgSrc}" alt="${imgAlt}" title="${imgTitle}" /><figcaption>${imgCaption}</figcaption></figure>`;
-                        });
                         // Remove tables
-                        cleanedContent = cleanedContent.replace(/<table\b[^>]*>(.*?)<\/table>/g, '');
+                        let cleanedContent = articleContent.replace(/<table\b[^>]*>(.*?)<\/table>/g, '');
                         // Remove iframes
                         cleanedContent = cleanedContent.replace(/<iframe\b[^>]*>(.*?)<\/iframe>/g, '');
                         // Remove empty headings
