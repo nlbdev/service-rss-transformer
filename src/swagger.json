@@ -1,0 +1,110 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "RSS Transformation Service API",
+      "version": "1.0.0",
+      "description": "API for converting RSS feeds to other formats",
+      "contact": {
+        "name": "Utviklere i NB-TL",
+        "email": "TL-utviklere@nb.no"
+      }
+    },
+    "externalDocs": {
+      "description": "NLB API documentation",
+      "url": "https://api.nlb.no/documentation"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Health",
+        "description": "Health check"
+      },
+      {
+        "name": "RSS",
+        "description": "Convert RSS feeds"
+      }
+    ],
+    "paths": {
+      "/health": {
+        "get": {
+          "tags": [
+            "Health"
+          ],
+          "summary": "Health check",
+          "description": "Check if the service is up and running",
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/convert/{outputFormat}": {
+        "post": {
+          "tags": [
+            "RSS"
+          ],
+          "summary": "Convert RSS feed to given format",
+          "description": "Convert RSS feed to given format",
+          "parameters": [{
+            "in": "path",
+            "name": "outputFormat",
+            "description": "Format to convert to",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "dtbook",
+              "xhtml"
+            ],
+            "default": "dtbook"
+          }],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "feedUrl": {
+                      "type": "string",
+                      "description": "URL to RSS feed"
+                    },
+                    "editionId": {
+                      "type": "string",
+                      "description": "Edition ID"
+                    }
+                  },
+                  "required": [
+                    "feedUrl",
+                    "editionId"
+                  ]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/xml": {
+                  "schema": {
+                    "type": "string",
+                    "description": "NLBPUB XML"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      }
+    }
+  }
