@@ -26,11 +26,6 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.get('/health', (req, res) => {
-    const { NLB_API_URL } = process.env;
-    if (NLB_API_URL === undefined) {
-        res.status(500).json({ error: 'NLB_API_URL is not set' });
-        return;
-    }
     res.send('OK');
 });
 
@@ -38,14 +33,9 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
     // Get parameters from request body
     const { feedUrl, editionId } = req.body;
     const { outputFormat } = req.params;
-    const { NLB_API_URL } = process.env;
-    if (NLB_API_URL === undefined) {
-        res.status(500).json({ error: 'NLB_API_URL is not set' });
-        return;
-    }
 
     // Fetch metadata from the NLB API
-    axios.get(`${NLB_API_URL}/v1/editions/${editionId}?creative-work-metadata=all&edition-metadata=all&copies-metadata=none`).
+    axios.get(`https://api.nlb.no/v1/editions/${editionId}?creative-work-metadata=all&edition-metadata=all&copies-metadata=none`).
     then((response) => {
         // Parse the response into a JSON object
         const resp = response.data;
