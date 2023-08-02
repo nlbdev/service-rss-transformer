@@ -7,7 +7,8 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 
 export const app = express();
-const port = 3000;
+const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || 443;
 const packageJson = require('../package.json');
 const swaggerSpec = require('./swagger.json');
 
@@ -344,6 +345,7 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
     });
 });
 
+// Start the server
 app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+    console.log(`Server listening at http://${host}:${port}`);
 });
