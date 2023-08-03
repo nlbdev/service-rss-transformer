@@ -56,13 +56,16 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
             dcLang = 'nn_NO';
             break;
         case 'nor':
+        case 'no':
             dcLang = 'no_NO';
             break;
         case 'sme':
+        case 'se':
             dcLang = 'se_NO';
             xmlLang = 'se';
             break;
         case 'eng':
+        case 'en':
             xmlLang = 'en';
             dcLang = 'en_US';
             break;
@@ -80,6 +83,7 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
             // Add metadata to the output object
             output('dtbook').attr('xml:lang', xmlLang);
             output('dtbook').append('<head></head>');
+            output('head').append(`<meta name="dc:identifier" content="${editionId}" />`);
             output('head').append(`<meta name="dc:Language" content="${dcLang}"/>`);
             output('head').append(`<meta name="dc:Title" content="${title}"/>`);
             output('head').append(`<meta name="dtb:uid" content="${uid}"/>`);
@@ -93,9 +97,9 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
             output('book').append('<bodymatter></bodymatter>');
             output('book').append('<rearmatter></rearmatter>');
 
-            // Add about section to frontmatter
             output('frontmatter').append(`<doctitle>${title}</doctitle>`);
             if (options && options.includeAbout) {
+                // Add about section to frontmatter
                 if (xmlLang === 'en') {
                     output('frontmatter').append(`<level1><h1>About ${publisher}'s audio version of ${metadata.title}</h1>
                         <p>The audio version is based on the editorial content of the newspaper's print edition and produced on the basis of an agreement between the rights holder and ${publisher}.</p>
@@ -358,6 +362,10 @@ app.post('/convert/:outputFormat', (req: Request, res: Response) => {
             // Return the NLBPUB object
             res.send(output.xml());
         }
+    }).
+    catch((error) => {
+        console.log(error);
+        res.status(error.response.status).json(error.data);
     });
 });
 

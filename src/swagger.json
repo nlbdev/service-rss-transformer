@@ -70,6 +70,7 @@
                   "properties": {
                     "feedUrl": {
                       "type": "string",
+                      "format": "url",
                       "description": "URL to RSS feed"
                     },
                     "metadata": {
