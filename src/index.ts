@@ -7,8 +7,8 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 
 export const app = express();
-const host = process.env.HOST || 'localhost';
-const port = process.env.PORT || 3000;
+const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || 443;
 const packageJson = require('../package.json');
 const swaggerSpec = require('./swagger.json');
 
