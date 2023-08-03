@@ -72,9 +72,11 @@
                       "type": "string",
                       "description": "URL to RSS feed"
                     },
-                    "editionId": {
-                      "type": "string",
-                      "description": "Edition ID"
+                    "metadata": {
+                      "$ref": "#/definitions/Metadata"
+                    },
+                    "options": {
+                      "$ref": "#/definitions/Options"
                     }
                   },
                   "required": [
@@ -103,6 +105,165 @@
             "500": {
               "description": "Internal server error"
             }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Metadata": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Edition ID"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the publication"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the publication"
+          },
+          "responsibilityStatement": {
+            "type": "string",
+            "description": "Responsibility statement"
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Genre"
+            }
+          },
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Audience"
+            }
+          },
+          "available": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the publication is available"
+          },
+          "publishedYear": {
+            "type": "integer",
+            "description": "Year of publication"
+          },
+          "registered": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the publication was registered"
+          },
+          "pages": {
+            "type": "integer",
+            "description": "Number of pages"
+          },
+          "volumes": {
+            "type": "integer",
+            "description": "Number of volumes"
+          },
+          "publishedLocation": {
+            "type": "string",
+            "description": "Location of publication"
+          },
+          "publisher": {
+            "type": "string",
+            "description": "Publisher"
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Subject"
+            }
+          },
+          "subTitle": {
+            "type": "string",
+            "description": "Subtitle"
+          },
+          "edition": {
+            "type": "string",
+            "description": "Edition number"
+          },
+          "isbn": {
+            "type": "string",
+            "description": "ISBN"
+          }
+        }
+      },
+      "Genre": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "Identifier"
+          }
+        }
+      },
+      "Audience": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Identifier"
+          },
+          "age_from": {
+            "type": "integer",
+            "description": "Age from"
+          },
+          "age_to": {
+            "type": "integer",
+            "description": "Age to"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          }
+        }
+      },
+      "Subject": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location"
+          },
+          "dewey": {
+            "type": "string",
+            "description": "Dewey"
+          }
+        }
+      },
+      "Options": {
+        "type": "object",
+        "optional": true,
+        "properties": {
+          "includeAbout": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Include about page"
+          },
+          "includeToc": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Include table of contents",
+            "default": false
           }
         }
       }
