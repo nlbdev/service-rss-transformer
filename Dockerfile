@@ -1,4 +1,4 @@
-FROM node:14.19 as build
+FROM node:20.5 as build
 LABEL org.opencontainers.image.authors="utviklere@nlb.no"
 
 # Create app directory
@@ -16,7 +16,7 @@ COPY . .
 RUN yarn build
 
 # Only use the bundled app from build image
-FROM node:14.19
+FROM node:20.5
 WORKDIR /usr/src/app
 COPY --from=build /usr/src/app .
 COPY src/swagger.json dist/swagger.json
